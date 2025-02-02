@@ -1,0 +1,19 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+  box-sizing: border-box;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.btnError {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  border: 0.2rem solid #ed2326;
+  border-radius: 1rem;
+  color: #c31e26;
+}

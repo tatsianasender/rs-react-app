@@ -1,0 +1,25 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  align-items: center;
+  column-gap: 2rem;
+  width: 100%;
+  padding-bottom: 4rem;
+  border-bottom: 0.2rem solid #2a3282;
+}
+
+input {
+  min-height: 4.4rem;
+  padding: 1.2rem 2.4rem;
+  box-sizing: border-box;
+  border-radius: 1rem;
+  border: 0.2rem solid #faea17;
+}
+
+.btn {
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #000;
+  background: #faea17;
+}
