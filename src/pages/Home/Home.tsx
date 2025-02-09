@@ -1,5 +1,5 @@
 import { ChangeEvent, FC, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import cn from 'classnames';
 import useSearch from '../../hooks/useSearch';
 import { Person, PersonDetails } from '../../types/types';
@@ -23,7 +23,7 @@ const Home: FC = () => {
   const [detailsLoading, setDetailsLoading] = useState<boolean>(false);
 
   const location = useLocation();
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -57,17 +57,18 @@ const Home: FC = () => {
 
   const handleSearch = (term: string) => {
     updateSearchTerm(term);
-    fetchSearchResults(term, currentPage);
+    fetchSearchResults(term, 1);
+    searchParams.set('page', '1');
+    setSearchParams(searchParams);
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    navigate(`/?page=${page}`);
+    searchParams.set('page', String(page));
+    setSearchParams(searchParams);
   };
-  console.log(selectedPerson);
 
   const handleCardClick = async (url: string) => {
-    //navigate(`/?page=${currentPage}&details=${id}`);
     setSelectedPerson(null);
     setDetailsLoading(true);
 
@@ -76,9 +77,8 @@ const Home: FC = () => {
       const details = await response.json();
       setSelectedPerson(details);
 
-      // searchParams.set('frontpage', '2');
-      // searchParams.set('details', person.url.split('/').slice(-2, -1)[0]);
-      // setSearchParams(searchParams);
+      searchParams.set('details', url.split('/').slice(-2, -1)[0]);
+      setSearchParams(searchParams);
     } catch (error) {
       console.error('Error fetching details:', error);
     } finally {
