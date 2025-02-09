@@ -1,121 +1,72 @@
-import { Component } from 'react';
+import { ChangeEvent, FC, useEffect, useState } from 'react';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import SearchResults from '../../components/SearchResults/SearchResults';
 import Loader from '../../components/Loader/Loader';
 import { Person } from '../../types/types';
 import styles from './Home.module.css';
 
-type IProps = object;
+const Home: FC = () => {
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<Person[]>([]);
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isShowError, setShowError] = useState<boolean>(false);
 
-type IState = {
-  searchTerm: string;
-  searchResults: Person[];
-  hasError: boolean;
-  isLoading: boolean;
-};
-
-class Home extends Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props);
-    this.state = {
-      searchTerm: '',
-      searchResults: [],
-      hasError: false,
-      isLoading: false,
-    };
-  }
-
-  componentDidMount() {
-    this.loadSearchTermFromLocalStorage();
-    this.fetchSearchResults();
-  }
-
-  loadSearchTermFromLocalStorage = () => {
-    const storedTerm = localStorage.getItem('searchTerm');
-    if (storedTerm) {
-      this.setState({
-        searchTerm: storedTerm.trim(),
-        isLoading: true,
-      });
+  useEffect(() => {
+    const savedSearchTerm = localStorage.getItem('searchTerm');
+    if (savedSearchTerm) {
+      setSearchTerm(savedSearchTerm);
+      fetchSearchResults(savedSearchTerm);
+    } else {
+      fetchSearchResults('');
     }
-  };
+  }, []);
 
-  handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({
-      searchTerm: event.target.value,
-    });
-  };
-
-  handleSearch = () => {
-    this.saveSearchTermToLocalStorage();
-    this.fetchSearchResults();
-  };
-
-  saveSearchTermToLocalStorage = () => {
-    localStorage.setItem('searchTerm', this.state.searchTerm.trim());
-  };
-
-  fetchSearchResults = async () => {
-    this.setState({ isLoading: true });
-    let url = 'https://swapi.dev/api/people/';
-    if (this.state.searchTerm) {
-      url += `?search=${encodeURIComponent(this.state.searchTerm)}`;
+  useEffect(() => {
+    if (isShowError) {
+      triggerError();
     }
+  }, [isShowError]);
 
+  const fetchSearchResults = async (term: string) => {
+    setLoading(true);
     try {
-      const response = await fetch(url);
+      const query = term ? `?search=${term.trim()}` : '';
+      const response = await fetch(`https://swapi.dev/api/people/${query}`);
       const data = await response.json();
-      this.setState({
-        hasError: false,
-        searchTerm: this.state.searchTerm,
-        searchResults: data.results,
-        isLoading: false,
-      });
+      setSearchResults(data.results || []);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      throw new Error('Cannot fetch data');
+      console.error('Error fetching results:', error);
     }
   };
 
-  triggerError = (): void => {
+  const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    localStorage.setItem('searchTerm', term);
+    fetchSearchResults(term);
+  };
+
+  const triggerError = (): void => {
     throw new Error('Test error');
   };
 
-  componentDidUpdate(): void {
-    if (this.state.hasError) {
-      this.triggerError();
-    }
-  }
-
-  render() {
-    return (
-      <div className={styles.wrapper}>
-        <SearchBar
-          searchTerm={this.state.searchTerm}
-          onSearchInputChange={this.handleSearchInputChange}
-          onSearch={this.handleSearch}
-        />
-        {this.state.isLoading ? (
-          <Loader />
-        ) : (
-          <SearchResults searchResults={this.state.searchResults} />
-        )}
-        <button
-          className={styles.btnError}
-          onClick={() =>
-            this.setState({
-              searchResults: [],
-              searchTerm: '',
-              hasError: true,
-              isLoading: false,
-            })
-          }
-        >
-          Trigger Error
-        </button>
-      </div>
-    );
-  }
-}
+  return (
+    <div className={styles.wrapper}>
+      <SearchBar
+        searchTerm={searchTerm}
+        onSearchInputChange={handleSearchInputChange}
+        onSearch={handleSearch}
+      />
+      {isLoading ? <Loader /> : <SearchResults searchResults={searchResults} />}
+      <button className={styles.btnError} onClick={() => setShowError(true)}>
+        Trigger Error
+      </button>
+    </div>
+  );
+};
 
 export default Home;

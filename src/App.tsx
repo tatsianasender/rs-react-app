@@ -1,15 +1,13 @@
-import { Component } from 'react';
+import { FC } from 'react';
 import Home from './pages/Home/Home';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 
-class App extends Component {
-  render() {
-    return (
-      <ErrorBoundary>
-        <Home />
-      </ErrorBoundary>
-    );
-  }
-}
+const App: FC = () => {
+  return (
+    <ErrorBoundary>
+      <Home />
+    </ErrorBoundary>
+  );
+};
 
 export default App;
