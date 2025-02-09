@@ -1,31 +1,20 @@
 import { ChangeEvent, FC, useEffect, useState } from 'react';
+import useSearch from '../../hooks/useSearch';
+import { Person } from '../../types/types';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import SearchResults from '../../components/SearchResults/SearchResults';
 import Loader from '../../components/Loader/Loader';
-import { Person } from '../../types/types';
 import styles from './Home.module.css';
 
 const Home: FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchResults, setSearchResults] = useState<Person[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isShowError, setShowError] = useState<boolean>(false);
+  const { searchTerm, updateSearchTerm } = useSearch();
 
   useEffect(() => {
-    const savedSearchTerm = localStorage.getItem('searchTerm');
-    if (savedSearchTerm) {
-      setSearchTerm(savedSearchTerm);
-      fetchSearchResults(savedSearchTerm);
-    } else {
-      fetchSearchResults('');
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isShowError) {
-      triggerError();
-    }
-  }, [isShowError]);
+    fetchSearchResults(searchTerm);
+  }, [searchTerm]);
 
   const fetchSearchResults = async (term: string) => {
     setLoading(true);
@@ -41,14 +30,19 @@ const Home: FC = () => {
   };
 
   const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+    updateSearchTerm(event.target.value);
   };
 
   const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    localStorage.setItem('searchTerm', term);
+    updateSearchTerm(term);
     fetchSearchResults(term);
   };
+
+  useEffect(() => {
+    if (isShowError) {
+      triggerError();
+    }
+  }, [isShowError]);
 
   const triggerError = (): void => {
     throw new Error('Test error');
