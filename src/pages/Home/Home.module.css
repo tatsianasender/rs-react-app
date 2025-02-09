@@ -9,6 +9,33 @@
   padding: 2rem;
 }
 
+.withDetails {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.withDetails > div {
+  width: 50%;
+}
+
+.details {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 12.6rem;
+  padding: 2rem;
+  font-size: 1.8rem;
+  border: 0.2rem solid #faea17;
+  border-radius: 1rem;
+  background: #000;
+}
+
+.details button {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+}
+
 .btnError {
   position: absolute;
   top: 2rem;

@@ -1,12 +1,14 @@
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import cn from 'classnames';
 import useSearch from '../../hooks/useSearch';
-import { Person } from '../../types/types';
+import { Person, PersonDetails } from '../../types/types';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import SearchResults from '../../components/SearchResults/SearchResults';
 import Loader from '../../components/Loader/Loader';
 import styles from './Home.module.css';
 import Pagination from '../../components/Pagination';
+import Details from '../../components/Details';
 
 const Home: FC = () => {
   const [searchResults, setSearchResults] = useState<Person[]>([]);
@@ -15,6 +17,10 @@ const Home: FC = () => {
   const { searchTerm, updateSearchTerm } = useSearch();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
+  const [selectedPerson, setSelectedPerson] = useState<PersonDetails | null>(
+    null
+  );
+  const [detailsLoading, setDetailsLoading] = useState<boolean>(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,6 +64,27 @@ const Home: FC = () => {
     setCurrentPage(page);
     navigate(`/?page=${page}`);
   };
+  console.log(selectedPerson);
+
+  const handleCardClick = async (url: string) => {
+    //navigate(`/?page=${currentPage}&details=${id}`);
+    setSelectedPerson(null);
+    setDetailsLoading(true);
+
+    try {
+      const response = await fetch(url);
+      const details = await response.json();
+      setSelectedPerson(details);
+
+      // searchParams.set('frontpage', '2');
+      // searchParams.set('details', person.url.split('/').slice(-2, -1)[0]);
+      // setSearchParams(searchParams);
+    } catch (error) {
+      console.error('Error fetching details:', error);
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (isShowError) {
@@ -70,21 +97,40 @@ const Home: FC = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
-      <SearchBar
-        searchTerm={searchTerm}
-        onSearchInputChange={handleSearchInputChange}
-        onSearch={handleSearch}
-      />
-      {isLoading ? <Loader /> : <SearchResults searchResults={searchResults} />}
-      <Pagination
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-        totalPages={totalPage}
-      />
-      <button className={styles.btnError} onClick={() => setShowError(true)}>
-        Trigger Error
-      </button>
+    <div
+      className={cn(styles.wrapper, {
+        [styles.withDetails]: selectedPerson,
+      })}
+    >
+      <div>
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearchInputChange={handleSearchInputChange}
+          onSearch={handleSearch}
+        />
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <SearchResults
+            searchResults={searchResults}
+            onCardClick={handleCardClick}
+          />
+        )}
+        <Pagination
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          totalPages={totalPage}
+        />
+        <button className={styles.btnError} onClick={() => setShowError(true)}>
+          Trigger Error
+        </button>
+      </div>
+      {selectedPerson && (
+        <div className={styles.details}>
+          {detailsLoading ? <Loader /> : <Details person={selectedPerson} />}
+          <button onClick={() => setSelectedPerson(null)}>Close</button>
+        </div>
+      )}
     </div>
   );
 };

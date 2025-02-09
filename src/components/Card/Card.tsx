@@ -4,11 +4,12 @@ import styles from './Card.module.css';
 
 type IProps = {
   person: Person;
+  onClick: () => void;
 };
 
-const Card: FC<IProps> = ({ person }) => {
+const Card: FC<IProps> = ({ person, onClick }) => {
   return (
-    <div className={styles.card}>
+    <div className={styles.card} onClick={onClick}>
       <h4>{person.name}</h4>
       <div>
         gender:
@@ -17,14 +18,6 @@ const Card: FC<IProps> = ({ person }) => {
       <div>
         birth year:
         <strong>{person.birth_year}</strong>
-      </div>
-      <div>
-        height:
-        <strong>{person.height}</strong>
-      </div>
-      <div>
-        weight:
-        <strong>{person.mass}</strong>
       </div>
     </div>
   );
