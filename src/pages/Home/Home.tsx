@@ -6,8 +6,8 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import cn from 'classnames';
+import { useGetPeopleQuery } from '../../redux/api';
 import useSearch from '../../hooks/useSearch';
-import { Person } from '../../types/types';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import SearchResults from '../../components/SearchResults/SearchResults';
 import Loader from '../../components/Loader/Loader';
@@ -15,12 +15,9 @@ import styles from './Home.module.css';
 import Pagination from '../../components/Pagination';
 
 const Home: FC = () => {
-  const [searchResults, setSearchResults] = useState<Person[]>([]);
-  const [isLoading, setLoading] = useState<boolean>(false);
   const [isShowError, setShowError] = useState<boolean>(false);
   const { searchTerm, updateSearchTerm } = useSearch();
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPage, setTotalPage] = useState<number>(1);
   const [isDetailsOpen, setDetailsOpen] = useState(false);
 
   const location = useLocation();
@@ -37,25 +34,10 @@ const Home: FC = () => {
     setDetailsOpen(location.pathname.startsWith('/details/'));
   }, [location.pathname]);
 
-  useEffect(() => {
-    fetchSearchResults(searchTerm, currentPage);
-  }, [searchTerm, currentPage]);
-
-  const fetchSearchResults = async (term: string, page: number) => {
-    setLoading(true);
-    try {
-      const query = term
-        ? `?search=${term.trim()}&page=${page}`
-        : `?page=${page}`;
-      const response = await fetch(`https://swapi.dev/api/people/${query}`);
-      const data = await response.json();
-      setSearchResults(data.results || []);
-      setTotalPage(data.count || 1);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching results:', error);
-    }
-  };
+  const { data, isLoading } = useGetPeopleQuery({
+    page: currentPage,
+    searchTerm: searchTerm,
+  });
 
   const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     updateSearchTerm(event.target.value);
@@ -63,7 +45,6 @@ const Home: FC = () => {
 
   const handleSearch = (term: string) => {
     updateSearchTerm(term);
-    fetchSearchResults(term, 1);
     searchParams.set('page', '1');
     setSearchParams(searchParams);
   };
@@ -106,12 +87,12 @@ const Home: FC = () => {
         {isLoading ? (
           <Loader />
         ) : (
-          <SearchResults searchResults={searchResults} />
+          data && <SearchResults searchResults={data.results} />
         )}
         <Pagination
           currentPage={currentPage}
           onPageChange={handlePageChange}
-          totalPages={totalPage}
+          totalPages={data?.count || 1}
         />
         <button className={styles.btnError} onClick={() => setShowError(true)}>
           Trigger Error
