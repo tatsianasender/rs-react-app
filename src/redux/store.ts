@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from './slices/counterSlice';
 import { swapiApi } from './api';
+import selectionReducer from './slices/selectionSlice';
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
     [swapiApi.reducerPath]: swapiApi.reducer,
+    selection: selectionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(swapiApi.middleware),

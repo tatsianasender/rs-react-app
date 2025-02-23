@@ -13,6 +13,7 @@ import SearchResults from '../../components/SearchResults/SearchResults';
 import Loader from '../../components/Loader/Loader';
 import styles from './Home.module.css';
 import Pagination from '../../components/Pagination';
+import SelectionFlyout from '../../components/SelectionFlyout/SelectionFlyout';
 
 const Home: FC = () => {
   const [isShowError, setShowError] = useState<boolean>(false);
@@ -97,6 +98,7 @@ const Home: FC = () => {
         <button className={styles.btnError} onClick={() => setShowError(true)}>
           Trigger Error
         </button>
+        <SelectionFlyout />
       </div>
       {isDetailsOpen && (
         <div className={styles.details}>
