@@ -1,0 +1,19 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  font-size: 2.2rem;
+  line-height: 4rem;
+  color: #fff;
+}
+
+.error {
+  font-size: 4rem;
+  line-height: 5rem;
+  color: #c31e26;
+  margin-bottom: 4rem;
+}
