@@ -1,14 +1,18 @@
 import { ChangeEvent, FC, useEffect, useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import cn from 'classnames';
 import useSearch from '../../hooks/useSearch';
-import { Person, PersonDetails } from '../../types/types';
+import { Person } from '../../types/types';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import SearchResults from '../../components/SearchResults/SearchResults';
 import Loader from '../../components/Loader/Loader';
 import styles from './Home.module.css';
 import Pagination from '../../components/Pagination';
-import Details from '../../components/Details';
 
 const Home: FC = () => {
   const [searchResults, setSearchResults] = useState<Person[]>([]);
@@ -17,12 +21,10 @@ const Home: FC = () => {
   const { searchTerm, updateSearchTerm } = useSearch();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
-  const [selectedPerson, setSelectedPerson] = useState<PersonDetails | null>(
-    null
-  );
-  const [detailsLoading, setDetailsLoading] = useState<boolean>(false);
+  const [isDetailsOpen, setDetailsOpen] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
@@ -30,6 +32,10 @@ const Home: FC = () => {
     const page = parseInt(queryParams.get('page') || '1', 10);
     setCurrentPage(page);
   }, [location]);
+
+  useEffect(() => {
+    setDetailsOpen(location.pathname.startsWith('/details/'));
+  }, [location.pathname]);
 
   useEffect(() => {
     fetchSearchResults(searchTerm, currentPage);
@@ -68,21 +74,9 @@ const Home: FC = () => {
     setSearchParams(searchParams);
   };
 
-  const handleCardClick = async (url: string) => {
-    setSelectedPerson(null);
-    setDetailsLoading(true);
-
-    try {
-      const response = await fetch(url);
-      const details = await response.json();
-      setSelectedPerson(details);
-
-      searchParams.set('details', url.split('/').slice(-2, -1)[0]);
-      setSearchParams(searchParams);
-    } catch (error) {
-      console.error('Error fetching details:', error);
-    } finally {
-      setDetailsLoading(false);
+  const handleClickOutside = () => {
+    if (isDetailsOpen) {
+      navigate('/');
     }
   };
 
@@ -99,8 +93,9 @@ const Home: FC = () => {
   return (
     <div
       className={cn(styles.wrapper, {
-        [styles.withDetails]: selectedPerson,
+        [styles.withDetails]: isDetailsOpen,
       })}
+      onClick={handleClickOutside}
     >
       <div>
         <SearchBar
@@ -111,10 +106,7 @@ const Home: FC = () => {
         {isLoading ? (
           <Loader />
         ) : (
-          <SearchResults
-            searchResults={searchResults}
-            onCardClick={handleCardClick}
-          />
+          <SearchResults searchResults={searchResults} />
         )}
         <Pagination
           currentPage={currentPage}
@@ -125,10 +117,9 @@ const Home: FC = () => {
           Trigger Error
         </button>
       </div>
-      {selectedPerson && (
+      {isDetailsOpen && (
         <div className={styles.details}>
-          {detailsLoading ? <Loader /> : <Details person={selectedPerson} />}
-          <button onClick={() => setSelectedPerson(null)}>Close</button>
+          <Outlet />
         </div>
       )}
     </div>

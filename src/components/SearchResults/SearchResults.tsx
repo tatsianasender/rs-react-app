@@ -5,19 +5,14 @@ import styles from './SearchResults.module.css';
 
 type IProps = {
   searchResults: Person[];
-  onCardClick: (url: string) => void;
 };
 
-const SearchResults: FC<IProps> = ({ searchResults, onCardClick }) => {
+const SearchResults: FC<IProps> = ({ searchResults }) => {
   return (
     <div className={styles.wrapper}>
       {searchResults.length > 0 ? (
         searchResults.map((result, index) => (
-          <Card
-            key={index}
-            person={result}
-            onClick={() => onCardClick(result.url)}
-          />
+          <Card key={index} person={result} />
         ))
       ) : (
         <h2>Nothing found.</h2>
