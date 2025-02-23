@@ -4,7 +4,7 @@ import Home from './pages/Home/Home';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NotFound from './pages/NotFound/NotFound';
-import Details from './components/Details';
+import Details from './components/Details/Details';
 
 const App: FC = () => {
   const { theme, toggleTheme } = useTheme();

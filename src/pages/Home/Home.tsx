@@ -12,7 +12,7 @@ import SearchBar from '../../components/SearchBar/SearchBar';
 import SearchResults from '../../components/SearchResults/SearchResults';
 import Loader from '../../components/Loader/Loader';
 import styles from './Home.module.css';
-import Pagination from '../../components/Pagination';
+import Pagination from '../../components/Pagination/Pagination';
 import SelectionFlyout from '../../components/SelectionFlyout/SelectionFlyout';
 
 const Home: FC = () => {
@@ -35,7 +35,7 @@ const Home: FC = () => {
     setDetailsOpen(location.pathname.startsWith('/details/'));
   }, [location.pathname]);
 
-  const { data, isLoading } = useGetPeopleQuery({
+  const { data, isLoading, isFetching, refetch } = useGetPeopleQuery({
     page: currentPage,
     searchTerm: searchTerm,
   });
@@ -47,6 +47,7 @@ const Home: FC = () => {
   const handleSearch = (term: string) => {
     updateSearchTerm(term);
     searchParams.set('page', '1');
+    refetch();
     setSearchParams(searchParams);
   };
 
@@ -54,6 +55,7 @@ const Home: FC = () => {
     setCurrentPage(page);
     searchParams.set('page', String(page));
     setSearchParams(searchParams);
+    refetch();
   };
 
   const handleClickOutside = () => {
@@ -85,7 +87,7 @@ const Home: FC = () => {
           onSearchInputChange={handleSearchInputChange}
           onSearch={handleSearch}
         />
-        {isLoading ? (
+        {isLoading || isFetching ? (
           <Loader />
         ) : (
           data && <SearchResults searchResults={data.results} />

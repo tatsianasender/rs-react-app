@@ -1,6 +1,6 @@
 import styles from './Details.module.css';
 import { useNavigate, useParams } from 'react-router-dom';
-import Loader from '../Loader';
+import Loader from '../Loader/Loader';
 import { useGetPersonQuery } from '../../redux/api';
 
 const Details = () => {

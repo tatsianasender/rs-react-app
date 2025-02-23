@@ -1,4 +1,5 @@
 .card {
+  display: block;
   width: calc(25% - 1.5rem);
   min-width: 30rem;
   box-sizing: border-box;
@@ -7,6 +8,11 @@
   border: 0.2rem solid #36c2de;
   border-radius: 1rem;
   background: #000;
+}
+
+input[type=checkbox] {
+  width: 2rem;
+  height: 2rem;
 }
 
 h4 {

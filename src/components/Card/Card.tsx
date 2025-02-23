@@ -23,18 +23,20 @@ const Card: FC<IProps> = ({ person }) => {
   };
 
   return (
-    <Link to={`/details/${personId}`} className={styles.card}>
+    <div>
       <input type="checkbox" checked={isSelected} onChange={handleSelection} />
-      <h4>{person.name}</h4>
-      <div>
-        gender:
-        <strong>{person.gender}</strong>
-      </div>
-      <div>
-        birth year:
-        <strong>{person.birth_year}</strong>
-      </div>
-    </Link>
+      <Link to={`/details/${personId}`} className={styles.card}>
+        <h4>{person.name}</h4>
+        <div>
+          gender:
+          <strong>{person.gender}</strong>
+        </div>
+        <div>
+          birth year:
+          <strong>{person.birth_year}</strong>
+        </div>
+      </Link>
+    </div>
   );
 };
 
